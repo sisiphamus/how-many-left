@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Many Left?</title>
+<meta property="og:title" content="How Many Left?">
+<meta property="og:description" content="Everything you love doing has a number. Enter your age and see what remains.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How Many Left?">
+<meta name="twitter:description" content="Everything you love doing has a number. Enter your age and see what remains.">
+<meta name="description" content="Everything you love doing has a number. Enter your age and see what remains.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --border: #1e1e22;
+  --text-primary: #f0ede6;
+  --text-secondary: #7a7a80;
+  --text-muted: #45454a;
+  --accent-warm: #e8a87c;
+  --accent-blue: #7eb8da;
+  --accent-rose: #d4808f;
+  --accent-sage: #8fbc8f;
+  --accent-lavender: #b8a9d4;
+  --accent-gold: #d4b96a;
+  --accent-coral: #e07a5f;
+  --accent-mint: #81c9b4;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background: var(--bg);
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* ---- NOISE OVERLAY ---- */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ---- PROGRESS BAR ---- */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  z-index: 10000;
+  transition: width 0.15s linear;
+  background: linear-gradient(90deg, var(--accent-warm), var(--accent-rose));
+  display: none;
+}
+
+.progress-bar.visible {
+  display: block;
+}
+
+/* ---- INTRO SECTION ---- */
+.intro {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.intro.hidden {
+  opacity: 0;
+  transform: translateY(-40px);
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+}
+
+.intro-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+  opacity: 0;
+  animation: floatLabel 3s ease-in-out infinite, introFadeUp 1.2s ease forwards;
+  animation-delay: 0.6s, 0.6s;
+}
+
+@keyframes floatLabel {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.intro h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  max-width: 700px;
+  position: relative;
+  opacity: 0;
+  animation: introFadeUp 1.2s ease forwards;
+}
+
+/* Radial glow behind hero title */
+.intro h1::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 200%;
+  background: radial-gradient(ellipse, rgba(232, 168, 124, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.intro h1 em {
+  font-style: italic;
+  color: var(--accent-warm);
+}
+
+@keyframes introFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.intro-sub {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 440px;
+  line-height: 1.65;
+  margin-bottom: 3.5rem;
+  font-weight: 300;
+  opacity: 0;
+  animation: introFadeUp 1.2s ease forwards;
+  animation-delay: 0.3s;
+}
+
+.age-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: introFadeUp 1.2s ease forwards;
+  animation-delay: 0.6s;
+}
+
+.age-prompt {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+.age-input {
+  width: 90px;
+  padding: 0.75rem 1rem;
+  font-size: 1.4rem;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.age-input:focus {
+  border-color: var(--accent-warm);
+}
+
+.age-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.go-btn {
+  padding: 0.75rem 2.2rem;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  background: var(--text-primary);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.go-btn:hover { transform: scale(1.04); }
+.go-btn:active { transform: scale(0.97); }
+.go-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+/* ---- RESULTS ---- */
+.results {
+  display: none;
+  padding: 0 1.5rem 6rem;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.results.visible {
+  display: block;
+  animation: fadeUp 0.9s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.results-header {
+  text-align: center;
+  padding: 5rem 0 4rem;
+}
+
+.results-header .your-age {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.results-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.results-header h2 span {
+  color: var(--accent-warm);
+}
+
+/* ---- STAT CARD ---- */
+.stat-card {
+  margin-bottom: 2.5rem;
+  padding: 3.5rem;
+  background: rgba(17, 17, 19, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease, box-shadow 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stat-card.in-view:hover {
+  transform: translateY(-2px);
+}
+
+/* Top-edge gradient glow instead of left border */
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-accent, var(--accent-warm)), transparent);
+  opacity: 0.6;
+}
+
+/* Background image layer */
+.stat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.04;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stat-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+  font-weight: 500;
+}
+
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  color: var(--card-accent, var(--accent-warm));
+  font-feature-settings: 'onum' 1;
+  text-shadow: 0 0 40px var(--card-accent, var(--accent-warm));
+}
+
+.stat-desc {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+}
+
+/* ---- DOT GRID ---- */
+.dot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.dot {
+  border-radius: 50%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.dot.past {
+  width: 5px;
+  height: 5px;
+  background: var(--text-muted);
+  opacity: 0.3;
+}
+
+.dot.future {
+  width: 7px;
+  height: 7px;
+  background: var(--card-accent, var(--accent-warm));
+  opacity: 0.85;
+  box-shadow: 0 0 6px var(--card-accent, var(--accent-warm));
+}
+
+/* stagger animation */
+.stat-card.in-view .dot.future {
+  animation: dotPop 0.4s ease forwards;
+}
+
+@keyframes dotPop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+
+/* ---- FINAL CARD ---- */
+.final-card {
+  text-align: center;
+  padding: 6rem 2rem;
+  margin-top: 2rem;
+  background: linear-gradient(135deg, #14141680, #1a1418, #14141680);
+  background-size: 300% 300%;
+  animation: gradientShift 8s ease-in-out infinite;
+  border: 1px solid #2a2025;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.final-card .stat-number {
+  color: var(--accent-warm);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  margin-bottom: 1rem;
+  text-shadow: 0 0 40px var(--accent-warm);
+}
+
+.final-card .stat-desc {
+  margin: 0 auto 0.5rem;
+  text-align: center;
+  max-width: 500px;
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+}
+
+.final-card .time-spent {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+.final-card::before {
+  opacity: 0.3;
+}
+
+.final-card::after { display: none; }
+
+/* ---- SHARE BUTTON ---- */
+.share-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.share-btn {
+  padding: 0.95rem 2.8rem;
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  background: var(--accent-warm);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.share-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 24px rgba(232, 168, 124, 0.3);
+}
+
+.share-btn:active {
+  transform: scale(0.97);
+}
+
+/* ---- RESET ---- */
+.reset-wrap {
+  text-align: center;
+  padding: 3rem 0 2rem;
+}
+
+.reset-btn {
+  font-size: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  transition: color 0.3s;
+}
+
+.reset-btn:hover { color: var(--text-secondary); }
+
+/* ---- FOOTER ---- */
+.footer {
+  text-align: center;
+  padding: 3rem 1rem;
+  border-top: 1px solid var(--border);
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.footer p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 600px) {
+  .stat-card { padding: 2rem 1.5rem; }
+  .stat-number { font-size: clamp(3rem, 10vw, 5rem) !important; }
+  .dot.future { width: 6px; height: 6px; }
+  .dot.past { width: 4px; height: 4px; }
+  .dot-grid { gap: 3px; }
+  .results { padding: 0 1rem 4rem; }
+  .final-card { padding: 4rem 1.5rem; }
+  .final-card .stat-number { font-size: clamp(1.8rem, 5vw, 2.5rem) !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- INTRO -->
+<section class="intro" id="intro">
+  <div class="intro-label">A moment of perspective</div>
+  <h1>How Many <em>Left?</em></h1>
+  <p class="intro-sub">
+    We think life is long. But everything you love doing has a number.
+    Enter your age and see what remains.
+  </p>
+  <div class="age-input-wrap">
+    <span class="age-prompt">I am</span>
+    <input type="number" class="age-input" id="ageInput" placeholder="25" min="1" max="99" aria-label="Your age">
+    <span class="age-prompt">years old</span>
+    <button class="go-btn" id="goBtn" disabled>Show me</button>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results" id="results"></section>
+
+<script>
+const LIFE_EXPECTANCY = 80;
+
+const CARD_IMAGES = {
+  'summers': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=20',
+  'parent-visits': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&q=20',
+  'sunsets': 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=400&q=20',
+  'full-moons': 'https://images.unsplash.com/photo-1532693322450-2f6e7e5a1b3a?w=400&q=20',
+  'books': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&q=20',
+  'ocean-swims': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=20',
+  'new-songs': 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=20',
+  'pizzas': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=20',
+  'cry-laughing': 'https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=400&q=20',
+  'christmases': 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=400&q=20'
+};
+
+const STATS = [
+  {
+    key: 'summers',
+    label: 'Summers left',
+    perYear: 1,
+    accent: 'var(--accent-warm)',
+    desc: age => `Each one felt infinite when you were a kid. You've used ${age} of them. The ones remaining fit in a single row.`
+  },
+  {
+    key: 'parent-visits',
+    label: 'Times you\'ll see your parents',
+    perYear: 3,
+    accent: 'var(--accent-rose)',
+    desc: age => {
+      const left = Math.max(0, Math.round((LIFE_EXPECTANCY - age) * 3));
+      return `After you move out, you see your parents maybe 3 times a year. ${left} visits. Count them.`;
+    }
+  },
+  {
+    key: 'sunsets',
+    label: 'Sunsets you\'ll actually watch',
+    perYear: 15,
+    accent: 'var(--accent-gold)',
+    desc: age => `Not glance at. Actually stop and watch, start to finish. Maybe 15 a year if you're intentional.`
+  },
+  {
+    key: 'full-moons',
+    label: 'Full moons you\'ll see',
+    perYear: 12.37,
+    accent: 'var(--accent-blue)',
+    desc: age => `There are about 12 full moons a year. Most of them, you won't even look up.`
+  },
+  {
+    key: 'books',
+    label: 'Books you\'ll read',
+    perYear: 4,
+    accent: 'var(--accent-lavender)',
+    desc: age => `The average person reads about 4 books a year. Every book you pick is a thousand you'll never open.`
+  },
+  {
+    key: 'ocean-swims',
+    label: 'Times you\'ll swim in the ocean',
+    perYear: 4,
+    accent: 'var(--accent-mint)',
+    desc: age => `That feeling of salt water and weightlessness. You might get 4 chances a year.`
+  },
+  {
+    key: 'new-songs',
+    label: 'Songs that\'ll become your favorites',
+    perYear: 3,
+    accent: 'var(--accent-lavender)',
+    desc: age => `Not songs you hear. Songs that stop you, that you replay 50 times, that become part of you. Maybe 3 a year.`
+  },
+  {
+    key: 'pizzas',
+    label: 'Pizzas you\'ll eat',
+    perYear: 40,
+    accent: 'var(--accent-coral)',
+    desc: age => `Americans eat about 40 pizzas a year. That sounds like a lot until you see the dots.`
+  },
+  {
+    key: 'cry-laughing',
+    label: 'Times you\'ll cry from laughing',
+    perYear: 6,
+    accent: 'var(--accent-sage)',
+    desc: age => `That full-body, can't-breathe, tears-streaming laughter. It doesn't happen every day.`
+  },
+  {
+    key: 'christmases',
+    label: 'Christmases remaining',
+    perYear: 1,
+    accent: 'var(--accent-warm)',
+    desc: age => `The smell of pine, the same songs, the people around the table. Each one with a slightly different cast.`
+  }
+];
+
+const ageInput = document.getElementById('ageInput');
+const goBtn = document.getElementById('goBtn');
+const intro = document.getElementById('intro');
+const results = document.getElementById('results');
+const progressBar = document.getElementById('progressBar');
+
+let startTime = null;
+let timerInterval = null;
+
+ageInput.addEventListener('input', () => {
+  const v = parseInt(ageInput.value);
+  goBtn.disabled = !(v > 0 && v < 100);
+});
+
+ageInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !goBtn.disabled) generate();
+});
+
+goBtn.addEventListener('click', generate);
+
+// Progress bar scroll handler
+function updateProgressBar() {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  if (docHeight <= 0) return;
+  const progress = Math.min((scrollTop / docHeight) * 100, 100);
+  progressBar.style.width = progress + '%';
+}
+
+function generate() {
+  const age = parseInt(ageInput.value);
+  if (!age || age < 1 || age >= 100) return;
+
+  startTime = Date.now();
+  intro.classList.add('hidden');
+  progressBar.classList.add('visible');
+  window.addEventListener('scroll', updateProgressBar);
+
+  const yearsLeft = Math.max(0, LIFE_EXPECTANCY - age);
+
+  let html = `
+    <div class="results-header">
+      <div class="your-age">Age ${age}</div>
+      <h2>You have roughly <span>${yearsLeft} years</span> left.<br>Here's what that looks like.</h2>
+    </div>
+  `;
+
+  STATS.forEach((stat, i) => {
+    const totalLife = Math.round(LIFE_EXPECTANCY * stat.perYear);
+    const used = Math.round(age * stat.perYear);
+    const remaining = Math.max(0, totalLife - used);
+
+    const maxDots = 300;
+    const scale = totalLife > maxDots ? maxDots / totalLife : 1;
+    const dotsUsed = Math.round(used * scale);
+    const dotsFuture = Math.round(remaining * scale);
+
+    let dots = '';
+    for (let d = 0; d < dotsUsed; d++) {
+      dots += `<span class="dot past"></span>`;
+    }
+    for (let d = 0; d < dotsFuture; d++) {
+      const delay = (d * 12) + (i * 60);
+      dots += `<span class="dot future" style="animation-delay:${delay}ms"></span>`;
+    }
+
+    const bgImage = CARD_IMAGES[stat.key] || '';
+
+    html += `
+      <div class="stat-card" style="--card-accent:${stat.accent}" data-bg="${bgImage}">
+        <div class="stat-label">${stat.label}</div>
+        <div class="stat-number">${remaining.toLocaleString()}</div>
+        <div class="stat-desc">${stat.desc(age)}</div>
+        <div class="dot-grid">${dots}</div>
+      </div>
+    `;
+  });
+
+  // Final emotional card
+  html += `
+    <div class="stat-card final-card" style="--card-accent:var(--accent-warm)">
+      <div class="stat-number">Make them count.</div>
+      <div class="stat-desc">
+        These numbers aren't meant to scare you. They're meant to wake you up.
+        Every dot is a chance to be present. You don't get more dots. You get better at feeling them.
+      </div>
+      <div class="time-spent" id="timeSpent">You've spent 0 minutes thinking about this.</div>
+      <div class="share-wrap">
+        <button class="share-btn" onclick="shareResults(${age})">Share your numbers</button>
+      </div>
+    </div>
+  `;
+
+  html += `
+    <div class="reset-wrap">
+      <button class="reset-btn" onclick="reset()">Start over</button>
+    </div>
+    <div class="footer">
+      <p>Based on a global life expectancy of ~80 years and approximate averages.<br>
+      Your mileage will vary. That's sort of the point.</p>
+    </div>
+  `;
+
+  results.innerHTML = html;
+  results.classList.add('visible');
+
+  // Apply background images to cards
+  document.querySelectorAll('.stat-card[data-bg]').forEach(card => {
+    const bg = card.getAttribute('data-bg');
+    if (bg) {
+      card.style.setProperty('--card-bg', `url(${bg})`);
+      const afterStyle = document.createElement('style');
+      const cardIndex = Array.from(document.querySelectorAll('.stat-card')).indexOf(card);
+      afterStyle.textContent = `.stat-card:nth-of-type(${cardIndex + 1})::after { background-image: url(${bg}); }`;
+      document.head.appendChild(afterStyle);
+    }
+  });
+
+  // Timer for "time spent thinking"
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const el = document.getElementById('timeSpent');
+    if (!el) { clearInterval(timerInterval); return; }
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    if (elapsed < 60) {
+      el.textContent = `You've spent ${elapsed} second${elapsed !== 1 ? 's' : ''} thinking about this.`;
+    } else {
+      const mins = Math.floor(elapsed / 60);
+      const secs = elapsed % 60;
+      el.textContent = `You've spent ${mins} minute${mins !== 1 ? 's' : ''} and ${secs} second${secs !== 1 ? 's' : ''} thinking about this.`;
+    }
+  }, 1000);
+
+  // Scroll to top of results
+  setTimeout(() => {
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+
+  // Intersection observer for card animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.stat-card').forEach(card => observer.observe(card));
+}
+
+function reset() {
+  results.classList.remove('visible');
+  results.innerHTML = '';
+  intro.classList.remove('hidden');
+  progressBar.classList.remove('visible');
+  progressBar.style.width = '0%';
+  window.removeEventListener('scroll', updateProgressBar);
+  if (timerInterval) clearInterval(timerInterval);
+  ageInput.value = '';
+  ageInput.focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function shareResults(age) {
+  const yearsLeft = Math.max(0, LIFE_EXPECTANCY - age);
+  const text = `I'm ${age}. I have roughly ${yearsLeft} summers left, ${Math.round((LIFE_EXPECTANCY - age) * 3)} more times I'll see my parents, and ${Math.round((LIFE_EXPECTANCY - age) * 15)} sunsets I'll actually watch.\n\nHow Many Left?`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'How Many Left?', text });
+    } catch(e) { /* user cancelled */ }
+  } else {
+    await navigator.clipboard.writeText(text);
+    const btn = document.querySelector('.share-btn');
+    btn.textContent = 'Copied to clipboard';
+    setTimeout(() => { btn.textContent = 'Share your numbers'; }, 2000);
+  }
+}
+</script>
+</body>
+</html>
