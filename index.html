@@ -553,12 +553,16 @@ const LIFE_EXPECTANCY = 80;
 const CARD_IMAGES = {
   'summers': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=20',
   'parent-visits': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&q=20',
+  'elections': 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=400&q=20',
   'sunsets': 'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=400&q=20',
   'full-moons': 'https://images.unsplash.com/photo-1532693322450-2f6e7e5a1b3a?w=400&q=20',
   'books': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&q=20',
+  'world-cups': 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&q=20',
   'ocean-swims': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=20',
   'new-songs': 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=20',
+  'meals': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=20',
   'pizzas': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=20',
+  'new-years': 'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=20',
   'cry-laughing': 'https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=400&q=20',
   'christmases': 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=400&q=20'
 };
@@ -579,6 +583,18 @@ const STATS = [
     desc: age => {
       const left = Math.max(0, Math.round((LIFE_EXPECTANCY - age) * 3));
       return `After you move out, you see your parents maybe 3 times a year. ${left} visits. Count them.`;
+    }
+  },
+  {
+    key: 'elections',
+    label: 'Presidential elections you\'ll vote in',
+    perYear: 0.25,
+    accent: 'var(--accent-blue)',
+    desc: age => {
+      const nextElection = 2028;
+      const currentYear = new Date().getFullYear();
+      const electionsLeft = Math.max(0, Math.floor((LIFE_EXPECTANCY - age) / 4));
+      return `One every four years. ${electionsLeft} more chances to shape the direction of the country. Each one felt historic at the time.`;
     }
   },
   {
@@ -603,6 +619,16 @@ const STATS = [
     desc: age => `The average person reads about 4 books a year. Every book you pick is a thousand you'll never open.`
   },
   {
+    key: 'world-cups',
+    label: 'World Cups you\'ll watch',
+    perYear: 0.25,
+    accent: 'var(--accent-sage)',
+    desc: age => {
+      const left = Math.max(0, Math.floor((LIFE_EXPECTANCY - age) / 4));
+      return `The biggest event on earth, every four years. ${left} more tournaments. Each one with its own heartbreak and glory.`;
+    }
+  },
+  {
     key: 'ocean-swims',
     label: 'Times you\'ll swim in the ocean',
     perYear: 4,
@@ -617,11 +643,28 @@ const STATS = [
     desc: age => `Not songs you hear. Songs that stop you, that you replay 50 times, that become part of you. Maybe 3 a year.`
   },
   {
+    key: 'meals',
+    label: 'Meals you\'ll eat',
+    perYear: 1095,
+    accent: 'var(--accent-coral)',
+    desc: age => {
+      const left = Math.max(0, Math.round((LIFE_EXPECTANCY - age) * 1095));
+      return `Three a day, ${left.toLocaleString()} total. USDA data says the average American eats 1,095 meals a year. Most will blur together. A few will become core memories.`;
+    }
+  },
+  {
     key: 'pizzas',
     label: 'Pizzas you\'ll eat',
     perYear: 40,
     accent: 'var(--accent-coral)',
     desc: age => `Americans eat about 40 pizzas a year. That sounds like a lot until you see the dots.`
+  },
+  {
+    key: 'new-years',
+    label: 'New Year\'s Eves left',
+    perYear: 1,
+    accent: 'var(--accent-gold)',
+    desc: age => `The countdown, the noise, the feeling that something is ending and something is beginning. ${Math.max(0, LIFE_EXPECTANCY - age)} more of those.`
   },
   {
     key: 'cry-laughing',
@@ -805,7 +848,8 @@ function reset() {
 
 async function shareResults(age) {
   const yearsLeft = Math.max(0, LIFE_EXPECTANCY - age);
-  const text = `I'm ${age}. I have roughly ${yearsLeft} summers left, ${Math.round((LIFE_EXPECTANCY - age) * 3)} more times I'll see my parents, and ${Math.round((LIFE_EXPECTANCY - age) * 15)} sunsets I'll actually watch.\n\nHow Many Left?`;
+  const elections = Math.max(0, Math.floor((LIFE_EXPECTANCY - age) / 4));
+  const text = `I'm ${age}. I have roughly ${yearsLeft} summers left, ${Math.round((LIFE_EXPECTANCY - age) * 3)} more times I'll see my parents, ${elections} more presidential elections, and ${Math.round((LIFE_EXPECTANCY - age) * 15)} sunsets I'll actually watch.\n\nHow Many Left?`;
 
   if (navigator.share) {
     try {
